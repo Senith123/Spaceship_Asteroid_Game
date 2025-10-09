@@ -32,25 +32,25 @@ class Ship(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             self.angle -= 5
         if keys[pygame.K_UP]:
-            r = math.radians(self.angle - 90)
+            r = math.radians(self.angle + 90)
             self.rect.x += math.cos(r) * self.speed
-            self.rect.y += math.sin(r) * self.speed
-        if keys[pygame.K_DOWN]:
-            r = math.radians(self.angle - 90)
-            self.rect.x -= math.cos(r) * self.speed
             self.rect.y -= math.sin(r) * self.speed
+        # if keys[pygame.K_DOWN]:
+        #     r = math.radians(self.angle - 90)
+        #     self.rect.x -= math.cos(r) * self.speed
+        #     self.rect.y -= math.sin(r) * self.speed
         self.image = pygame.transform.rotate(pic2,self.angle)
         self.rect = self.image.get_rect(center = self.rect.center)
-        if self.rect.right < 100:
-            self.rect.right = 100
-        if self.rect.left > 800:
-            self.rect.left = 800
+        if self.rect.right < 0:
+            self.rect.left = 900
+        if self.rect.left > 900:
+            self.rect.right = 0
         if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > 900:
             self.rect.bottom = 900
+        if self.rect.bottom > 900:
+            self.rect.top = 0
     def shoot(self, group, all_sprites):
-        bullet = Bullet(self.rect.center, self.angle - 90)
+        bullet = Bullet(self.rect.center, self.angle)
         group.add(bullet)
         all_sprites.add(bullet)
         shoot.play()
@@ -60,9 +60,9 @@ class Bullet (pygame.sprite.Sprite):
         self.image = pygame.Surface((4,4))
         self.image.fill((255,255,255))
         self.rect = self.image.get_rect(center = pos)
-        rad = math.radians(angle)
+        rad = math.radians(angle + 90)
         self.vx = math.cos(rad) * 10
-        self.vy = math.sin(rad) * 10
+        self.vy = -math.sin(rad) * 10
     def update(self, *_):
         self.rect.x += self.vx
         self.rect.y += self.vy
