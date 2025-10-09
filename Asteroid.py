@@ -32,12 +32,44 @@ class Ship(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             self.angle -= 5
         if keys[pygame.K_UP]:
-            r = math.radians(self.angle + 90)
+            r = math.radians(self.angle - 90)
             self.rect.x += math.cos(r) * self.speed
-            self.rect.y -= math.cos(r) * self.speed
+            self.rect.y += math.sin(r) * self.speed
+        if keys[pygame.K_DOWN]:
+            r = math.radians(self.angle - 90)
+            self.rect.x -= math.cos(r) * self.speed
+            self.rect.y -= math.sin(r) * self.speed
         self.image = pygame.transform.rotate(pic2,self.angle)
         self.rect = self.image.get_rect(center = self.rect.center)
+        if self.rect.right < 100:
+            self.rect.right = 100
+        if self.rect.left > 800:
+            self.rect.left = 800
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > 900:
+            self.rect.bottom = 900
+    def shoot(self, group, all_sprites):
+        bullet = Bullet(self.rect.center, self.angle - 90)
+        group.add(bullet)
+        all_sprites.add(bullet)
+        shoot.play()
+class Bullet (pygame.sprite.Sprite):
+    def __init__(self, pos, angle):
+        super().__init__()
+        self.image = pygame.Surface((4,4))
+        self.image.fill((255,255,255))
+        self.rect = self.image.get_rect(center = pos)
+        rad = math.radians(angle)
+        self.vx = math.cos(rad) * 10
+        self.vy = math.sin(rad) * 10
+    def update(self, *_):
+        self.rect.x += self.vx
+        self.rect.y += self.vy
+        if not screen.get_rect().colliderect(self.rect):
+            self.kill()
 ship = Ship(450,450)
+bullets = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group(ship)
 run = True
 while run:
@@ -49,4 +81,6 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            ship.shoot(bullets, all_sprites)
     pygame.display.update()
