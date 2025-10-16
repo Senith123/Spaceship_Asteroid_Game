@@ -1,9 +1,16 @@
 import pygame
 import math
+import random
+import time
 pygame.init()
 #set dimensions of the screen
 width = 900
 height = 900
+font = pygame.font.SysFont("Agency FB",36)
+score = 0
+health = 3
+text = font.render("Score : " + str(score),True,(255,255,255))
+htext = font.render("Health : " + str(health),True,(255,255,255))
 screen = pygame.display.set_mode((900,900))
 pic1 = pygame.image.load("Space_BG.png")
 pic1 = pygame.transform.scale(pic1,(900,900))
@@ -16,7 +23,7 @@ pic7 = pygame.image.load("Star.png")
 shoot = pygame.mixer.Sound("shoot.wav")
 banglarge = pygame.mixer.Sound("bangLarge.wav")
 bangsmall = pygame.mixer.Sound("bangSmall.wav")
-
+asteroid_images = [pic3,pic4,pic5]
 class Ship(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
@@ -61,21 +68,60 @@ class Bullet (pygame.sprite.Sprite):
         self.image.fill((255,255,255))
         self.rect = self.image.get_rect(center = pos)
         rad = math.radians(angle + 90)
-        self.vx = math.cos(rad) * 10
-        self.vy = -math.sin(rad) * 10
+        self.vx = math.cos(rad) * 30
+        self.vy = -math.sin(rad) * 30
     def update(self, *_):
         self.rect.x += self.vx
         self.rect.y += self.vy
         if not screen.get_rect().colliderect(self.rect):
             self.kill()
+class Asteroids (pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.rank = random.randint(0,2)
+        self.image = asteroid_images[self.rank]
+        self.rect = self.image.get_rect(center = (random.randint(0,900), random.randint(0,900)))
+        self.vx = random.randint(-5,5)
+        self.vy = random.randint(-5,5)
+    def update(self, *_):
+        self.rect.x += self.vx
+        self.rect.y += self.vy
+        if not screen.get_rect().colliderect(self.rect):
+            self.kill()
+
 ship = Ship(450,450)
 bullets = pygame.sprite.Group()
+asteroids = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group(ship)
+clock = pygame.time.Clock()
 run = True
 while run:
+    clock.tick(60)
     screen.fill("Blue")
     screen.blit(pic1,(0,0))
+    text = font.render("Score : " + str(score),True,(255,255,255))
+    htext = font.render("Health : " + str(health),True,(255,255,255))
+    screen.blit(text,(50,50))
+    screen.blit(htext,(725,50))
+    if random.randint(1,60) == 1:
+        a = Asteroids()
+        asteroids.add(a)
+        all_sprites.add(a)
     keys = pygame.key.get_pressed()
+    hits = pygame.sprite.groupcollide(bullets, asteroids, True, True)
+    #if pygame.sprite.groupcollide(bullets, asteroids, True, True):
+    for items in hits:
+         bangsmall.play()
+    score += len(hits) * 10
+    if pygame.sprite.spritecollide(ship, asteroids, True):
+        banglarge.play()
+        health -= 1 
+    if health <= 0:
+        rwt=font.render("Game Over! You Scored " + str(score),True,(255,0,0))
+        screen.blit(rwt,(300,400))
+        pygame.display.update()
+        time.sleep(5)
+        break
     all_sprites.update(keys)
     all_sprites.draw(screen)
     for event in pygame.event.get():
