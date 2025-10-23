@@ -80,7 +80,7 @@ class Asteroids (pygame.sprite.Sprite):
         super().__init__()
         self.rank = random.randint(0,2)
         self.image = asteroid_images[self.rank]
-        self.rect = self.image.get_rect(center = (random.randint(0,900), random.randint(0,900)))
+        self.rect = self.image.get_rect(center = (random.choice([-90,850,90,50,100,800,750,150,900,200]), random.choice([-90,850,90,50,100,800,750,150,900,200])))
         self.vx = random.randint(-5,5)
         self.vy = random.randint(-5,5)
     def update(self, *_):
@@ -108,11 +108,18 @@ while run:
         asteroids.add(a)
         all_sprites.add(a)
     keys = pygame.key.get_pressed()
-    hits = pygame.sprite.groupcollide(bullets, asteroids, True, True)
+    hits = pygame.sprite.groupcollide(asteroids, bullets, True, True)
     #if pygame.sprite.groupcollide(bullets, asteroids, True, True):
     for items in hits:
-         bangsmall.play()
-    score += len(hits) * 10
+        bangsmall.play()
+        print(items.rank)
+        if items.rank == 0:
+            score = score + 10
+        if items.rank == 1:
+            score = score + 20
+        if items.rank == 2:
+            score = score + 30
+    #score += len(hits) * 10
     if pygame.sprite.spritecollide(ship, asteroids, True):
         banglarge.play()
         health -= 1 
