@@ -125,10 +125,11 @@ while run:
         health -= 1 
     if health <= 0:
         rwt=font.render("Game Over! You Scored " + str(score),True,(255,0,0))
+        rtext = font.render("Press 'R' To Restart",True,(255,255,255))
         screen.blit(rwt,(300,400))
+        screen.blit(rtext,(300,500))
         pygame.display.update()
         time.sleep(5)
-        break
     all_sprites.update(keys)
     all_sprites.draw(screen)
     for event in pygame.event.get():
@@ -136,4 +137,9 @@ while run:
             pygame.quit()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             ship.shoot(bullets, all_sprites)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            screen.blit(pic1,(0,0))
+            score = 0
+            health = 3
+
     pygame.display.update()
